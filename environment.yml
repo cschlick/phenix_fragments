@@ -6,7 +6,7 @@ channels:
   - defaults
 dependencies:
   - pip
-  - pytorch-cpu
+  - pytorch
   - dgl
   - networkx
   - tqdm
