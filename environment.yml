@@ -1,0 +1,18 @@
+name: frag
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - pip
+  - pytorch-cpu
+  - networkx
+  - tqdm
+  - jupyterlab
+  - cctbx-base
+  - rdkit
+  - pynndescent
+  - scikit-learn
+  - seaborn
+  - pip:
+    - pdbecif
