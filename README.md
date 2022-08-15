@@ -1,4 +1,4 @@
-# phenix_fragments
+# Phenix Fragments
 A toolbox for working with molecular fragments and generating chemical restraints within the CCTBX/Phenix framework
 
 
