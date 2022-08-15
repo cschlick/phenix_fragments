@@ -1,11 +1,13 @@
 name: frag
 channels:
   - pytorch
+  - dglteam
   - conda-forge
   - defaults
 dependencies:
   - pip
   - pytorch-cpu
+  - dgl
   - networkx
   - tqdm
   - jupyterlab
@@ -16,3 +18,4 @@ dependencies:
   - seaborn
   - pip:
     - pdbecif
+    - .

@@ -1,4 +1,5 @@
 from pathlib import Path
+import argparse
 import tqdm
 import numpy as np
 
@@ -49,7 +50,7 @@ if __name__ == '__main__':
   
   # gnn for bonds
   label_name = "distance"
-  file_pkl = "../../pretrained/gnn_bonds_dsgen.pkl"
+  file_pkl = "../pretrained/gnn_bonds_dsgen.pkl"
   ds_gen = MolGraphDataSetGenerator.from_file_pickle(file_pkl)
   ds = ds_gen(mol,disable_progress=True)
   model = ds_gen.pretrained_models["predictor"]
