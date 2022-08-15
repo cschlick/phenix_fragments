@@ -4,5 +4,7 @@ A toolbox for working with molecular fragments and generating chemical restraint
 
 # Installation
 ```bash
+git clone git@github.com:cschlick/phenix_fragments.git
+cd phenix_fragments
 conda env create --file=environment.yml
 ```
