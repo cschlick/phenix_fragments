@@ -1,0 +1,70 @@
+data_comp_list
+#
+_chem_comp.id                      test
+_chem_comp.three_letter_code       .
+_chem_comp.name                    .
+_chem_comp.group                   .
+_chem_comp.number_atoms_all        .
+_chem_comp.number_atoms_nh         .
+_chem_comp.desc_level              .
+_chem_comp.initial_date            .
+_chem_comp.modified_date           .
+_chem_comp.source                  "Predicted using Phenix experimental restraints. Molecule input: RDKIT Mol object"
+
+#
+data_comp_test
+#
+loop_
+_chem_comp_atom.id                
+_chem_comp_atom.atom_id           
+_chem_comp_atom.comp_id           
+_chem_comp_atom.type_symbol       
+_chem_comp_atom.charge            
+_chem_comp_atom.x                 
+_chem_comp_atom.y                 
+_chem_comp_atom.z                 
+0 C1 test C 0 -0.977 -0.168  0.066
+1 C2 test C 0  0.447  0.304  0.143
+2 O1 test O 0   1.51 -0.564 -0.068
+3 O2 test O 0  0.729  1.513  0.403
+4 H1 test H 0 -1.165 -0.736 -0.866
+5 H2 test H 0 -1.635   0.72  0.035
+6 H3 test H 0 -1.214 -0.828  0.905
+7 H4 test H 0  2.305 -0.241 -0.617
+#
+loop_
+_chem_comp_bond.id_1             
+_chem_comp_bond.atom_id_1        
+_chem_comp_bond.id_2             
+_chem_comp_bond.atom_id_2        
+_chem_comp_bond.comp_id          
+_chem_comp_bond.type             
+_chem_comp_bond.value_dist       
+0 C1 1 C2 test single 1.6105559
+1 C2 2 O1 test single 1.3230331
+1 C2 3 O2 test double 1.2792897
+0 C1 4 H1 test single 1.0461074
+0 C1 5 H2 test single 1.0461075
+0 C1 6 H3 test single 1.0461076
+2 O1 7 H4 test single 0.8916684
+#
+loop_
+_chem_comp_angle.id_1              
+_chem_comp_angle.atom_id_1         
+_chem_comp_angle.id_2              
+_chem_comp_angle.atom_id_2         
+_chem_comp_angle.id_3              
+_chem_comp_angle.atom_id_3         
+_chem_comp_angle.comp_id           
+_chem_comp_angle.value_angle       
+1 C2 2 O1 7 H4 test  110.96963
+1 C2 0 C1 4 H1 test   113.0535
+0 C1 1 C2 3 O2 test   128.3996
+2 O1 1 C2 3 O2 test  124.40517
+1 C2 0 C1 6 H3 test   113.0535
+4 H1 0 C1 6 H3 test   113.7341
+0 C1 1 C2 2 O1 test  128.86107
+5 H2 0 C1 6 H3 test   113.7341
+4 H1 0 C1 5 H2 test   113.7341
+1 C2 0 C1 5 H2 test 113.053505
+#

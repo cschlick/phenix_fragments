@@ -262,7 +262,7 @@ class AtomInputCCTBX(AtomInput):
         super().__init__([AtomCCTBX(self,i) for i,atom in enumerate(self.cctbx_atoms)])
     
     def _set_api_attrs(self):
-      for i,attr in enumerate(self.attrs_api):
+      for i,attr in enumerate(Atom.ATTRS_API):
         if not hasattr(self.__class__,attr):
           setattr(self.__class__,attr,property(lambda self,name=attr: self._get_api_attr(name=name)))
     
@@ -270,9 +270,15 @@ class AtomInputCCTBX(AtomInput):
         return np.array([getattr(obj,name) for obj in self])
         
       
-      
+    
+    
     def __hash__(self):
       return hash(frozenset(self))
+    
+    @property
+    def attrs_api(self):
+      return Atom.ATTRS_API
+    
     @property
     def xyz(self):
         return self.cctbx_atoms.extract_xyz().as_numpy_array()
@@ -326,9 +332,8 @@ class AtomCCTBX(Atom):
     """
     A wrapper around a cctbx atom to provide a consistent api
     """
-    def __init__(self,atom_input,atom_index):
-        self.atom_input=atom_input
-        self.atom_index=atom_index
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
 
     
     @property

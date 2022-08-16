@@ -7,7 +7,17 @@ from .atoms import AtomSelection
 from .fragments import Fragment, FragmentList, FragmentSelection
 
 
-    
+# convert string bond type to rdkit bond type (TODO: move this elsewhere)
+BOND_TYPE_RDKIT_MAPPER = {
+  "deloc": Chem.rdchem.BondType.ONEANDAHALF,
+  "single": Chem.rdchem.BondType.SINGLE,
+  "double": Chem.rdchem.BondType.DOUBLE,
+  "triple": Chem.rdchem.BondType.TRIPLE,
+  "aromatic": Chem.rdchem.BondType.AROMATIC,
+  "metal": Chem.rdchem.BondType.DATIVE, # is this ok?
+}
+
+BOND_TYPE_RDKIT_MAPPER.update({value:key for key,value in BOND_TYPE_RDKIT_MAPPER.items()})
   
 
 class Bond(Fragment):
@@ -65,10 +75,22 @@ class BondCCTBX(Bond):
     def from_bond_proxy(cls,atomlist,bond_proxy):
         # TODO: Validate that atomlist.cctbx_atoms is equivalent to model.get_atoms()
         i,j = bond_proxy.i_seqs
-        return cls(atomlist,bond_proxy,selection_int=[i,j],distance_ideal=bond_proxy.distance_ideal)
+        return cls(atomlist,bond_proxy,
+                   selection_int=[i,j],
+                   bond_type=BOND_TYPE_RDKIT_MAPPER[Chem.rdchem.BondType.SINGLE], # TODO: get bond type
+                   distance_ideal=bond_proxy.distance_ideal)
         
-    def __init__(self,atomlist,bond_proxy,selection_int=None,distance_ideal=None):
-        super().__init__(atomlist,selection_int=selection_int,distance_ideal=distance_ideal)
+    def __init__(self,
+                 atomlist,
+                 bond_proxy,
+                 selection_int=None,
+                 bond_type=None,
+                 distance_ideal=None):
+      
+        super().__init__(atomlist,
+                         selection_int=selection_int,
+                         bond_type=bond_type,
+                         distance_ideal=distance_ideal)
         self.bond_proxy = bond_proxy
 
 
@@ -179,17 +201,7 @@ class BondRDKIT(Bond):
         
     def __init__(self,atomlist,bond,selection_int=None,distance_ideal=None):
         
-        # convert string bond type to rdkit bond type (TODO: move this elsewhere)
-        BOND_TYPE_RDKIT_MAPPER = {
-          "deloc": Chem.rdchem.BondType.ONEANDAHALF,
-          "single": Chem.rdchem.BondType.SINGLE,
-          "double": Chem.rdchem.BondType.DOUBLE,
-          "triple": Chem.rdchem.BondType.TRIPLE,
-          "aromatic": Chem.rdchem.BondType.AROMATIC,
-          "metal": Chem.rdchem.BondType.DATIVE, # is this ok?
-        }
 
-        BOND_TYPE_RDKIT_MAPPER.update({value:key for key,value in BOND_TYPE_RDKIT_MAPPER.items()})
     
         super().__init__(atomlist,
                          selection_int=selection_int,

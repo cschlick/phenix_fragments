@@ -79,7 +79,9 @@ class MolInputGeo(MolInput):
 
   
 class MolInputCCTBX(MolInput):
-  def __init__(self,cctbx_model):
+  def __init__(self,cctbx_model,molecule_id=""):
+    if molecule_id !="":
+      self.molecule_id = molecule_id
 
 
     self.cctbx_model = cctbx_model
@@ -136,11 +138,45 @@ class Mol:
   A selection on a mol input
   """
   
+  
+  
   @classmethod
-  def from_cctbx_model(cls,model):
-    mol_input = MolInputCCTBX(model)
+  def from_rdkit_mol(cls,rdkit_mol,comp_id=""):
+    mol_input = MolInputRDKIT(rdkit_mol,comp_id=comp_id)
     return cls(mol_input)
   
+  @classmethod
+  def from_cctbx_model(cls,model,molecule_id=""):
+    mol_input = MolInputCCTBX(model,molecule_id=molecule_id)
+    return cls(mol_input)
+  
+  @classmethod
+  def from_file_via_rdkit(cls,file):
+    load_functions = [Chem.MolFromMolFile,Chem.MolFromMol2File]
+    for f in load_functions:
+      try:
+        rdkit_mol = f(str(file),removeHs=False)
+        return cls.from_rdkit_mol(rdkit_mol)
+      except:
+        pass
+    assert False, "Failed to load from file using rdkit"
+  
+  @classmethod
+  def from_file_via_cctbx(cls,file,restraint_files=[],molecule_id=""):
+    file = Path(file)
+    from iotbx.data_manager import DataManager
+    dm = DataManager()
+    dm.process_model_file(str(file))
+    if len(restraint_files) >0:
+      for restraint_file in restraint_files:
+        dm.process_restraint_file(restraint_file)
+    model = dm.get_model()
+    model.process(make_restraints=True)
+    if molecule_id == "":
+      molecule_id = file.stem
+    return cls.from_cctbx_model(model,molecule_id=molecule_id)
+
+
   @classmethod
   def from_file_geocif(cls,file):
     """
@@ -168,6 +204,7 @@ class Mol:
       # don't need to do a selection
       self.atoms = self.mol_input.atoms
       for atom in self.atoms:
+        
         atom.mol = self
       for attr in self.mol_input.API_ATTRS:
         if attr == "atoms":
@@ -240,11 +277,11 @@ class Mol:
   def molecule_id(self,value):
     self._molecule_id = value
   
-  def write_geo(self,file):
+  def write_file_geo(self,file):
     write_geo(self,file)
   
-  def write_geo_big(self,file):
-    write_geo_big(self,file)
+  def write_file_mol(self,file):
+    Chem.MolToMolFile(self.rdkit_mol,str(file))
     
     
   # nx functions

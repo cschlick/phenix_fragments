@@ -31,7 +31,7 @@ def build_atom_graph_from_rdkit(rdkit_mol,
   elif atom_featurizer is not None:
     atom_features = np.vstack([atom_featurizer(atom) for atom in rdkit_mol.GetAtoms()])
   else:
-    atom_features = np.zeros((len(mol),1))
+    atom_features = np.zeros((rdkit_mol.GetNumAtoms(),1))
 
   atom_idxs_wH = []
   atom_idxs_woutH = []
@@ -56,7 +56,7 @@ def build_atom_graph_from_rdkit(rdkit_mol,
       bond_idxs.append([begin,end])
       
   bond_idxs = np.vstack([bond_idxs,np.flip(bond_idxs,axis=1)]) # add reverse direction edges
-  g = dgl.graph((bond_idxs[:,0],bond_idxs[:,1]))
+  g = dgl.graph((bond_idxs[:,0],bond_idxs[:,1]),num_nodes=len(atom_idxs_woutH))
 
   g.ndata["h0"] = torch.from_numpy(atom_features[atom_idxs_woutH]) # set initial representation
   g.ndata["mol_atom_index"] = torch.from_numpy(np.array(atom_idxs_woutH))
@@ -113,7 +113,7 @@ def build_atom_graph_from_mol(mol,
       bond_idxs.append([begin,end])
       
   bond_idxs = np.vstack([bond_idxs,np.flip(bond_idxs,axis=1)]) # add reverse direction edges
-  g = dgl.graph((bond_idxs[:,0],bond_idxs[:,1]))
+  g = dgl.graph((bond_idxs[:,0],bond_idxs[:,1]),num_nodes=len(atom_idxs_woutH))
 
   g.ndata["h0"] = torch.from_numpy(atom_features[atom_idxs_woutH]) # set initial representation
   g.ndata["mol_atom_index"] = torch.from_numpy(np.array(atom_idxs_woutH))
@@ -175,7 +175,7 @@ def build_atom_graph_from_cctbx(cctbx_model,
       bond_idxs.append([begin,end])
       
   bond_idxs = np.vstack([bond_idxs,np.flip(bond_idxs,axis=1)]) # add reverse direction edges
-  g = dgl.graph((bond_idxs[:,0],bond_idxs[:,1]))
+  g = dgl.graph((bond_idxs[:,0],bond_idxs[:,1]),num_nodes=len(atom_idxs_woutH))
 
   g.ndata["h0"] = torch.from_numpy(atom_features[atom_idxs_woutH]) # set initial representation
   g.ndata["mol_atom_index"] = torch.from_numpy(np.array(atom_idxs_woutH))
@@ -217,7 +217,9 @@ def build_fragment_graph(atom_graph,
     frag_edge_idxs = np.stack([frag_idxs[:,i],np.arange(frag_idxs.shape[0])],axis=1)
     edge_dict[name] = frag_edge_idxs
     
-  frag_graph = dgl.heterograph({key: list(value) for key, value in edge_dict.items()})
+  frag_graph = dgl.heterograph({key: list(value) for key, value in edge_dict.items()},
+                               num_nodes_dict={node_name:atom_graph.num_nodes(),
+                                               frag_name:frag_idxs.shape[0]})
   frag_graph.nodes[node_name].data["h0"] = atom_graph.ndata["h0"].type(torch.get_default_dtype())
 
   
