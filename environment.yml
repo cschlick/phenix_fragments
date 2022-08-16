@@ -16,6 +16,6 @@ dependencies:
   - pynndescent
   - scikit-learn
   - seaborn
-  - numpy=1.21.6
+  - numpy>=1.20
   - pip:
     - pdbecif
