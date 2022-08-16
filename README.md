@@ -19,3 +19,8 @@ The above steps will create an environment names "frag". To remove the environme
 ```bash
 conda env remove -n frag
 ```
+
+To reinstall just this package after making changes:
+```bash
+pip install . --force-reinstall
+```
