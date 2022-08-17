@@ -8,6 +8,7 @@ dependencies:
   - pip
   - pytorch
   - dgl
+  - cudatoolkit=11.6
   - networkx
   - tqdm
   - jupyterlab

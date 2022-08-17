@@ -21,7 +21,7 @@ from frag.graph.readout import ReadoutJanossyLinear
 
 from frag.utils.torch import to_np
 from frag.mol.cif import guess_cif_format, load_cif_file # move to utils
-from frag.mol.rdkit import mol3d
+from frag.mol.rdkit import mol_to_3d, mol_from_smiles
 
 
 if __name__ == '__main__':
@@ -31,7 +31,7 @@ if __name__ == '__main__':
   argparser.add_argument('--restraint_file', type=str,default="", help="Path to a file (.cif) that defines restraints for the purposes of doing pdb interpretation on the input file (.pdb/.mmcif)")
   argparser.add_argument('--mon_lib_path', type=str,default="/net/cci-filer3/home/cschlick/software/phenix/modules/chem_data/geostd", help="Path to set for the cctbx environment variable MMTBX_CCP4_MONOMER_LIB")
   argparser.add_argument('--smiles', type=str, help="Smiles string.")
-  argparser.add_argument('--smiles_add_H', type=bool,default=True, help="Add hydrogens to smiles input")
+  argparser.add_argument('--smiles_add_H', type=bool,default=False, help="Add hydrogens to smiles input")
   argparser.add_argument('--comp_id', type=str, default="", help="Component id for input which does not contain it (ie, smiles)")
   argparser.add_argument('--pt_gnn_bond', type=str, default="../pretrained/gnn_bonds_dsgen.pkl",help="Pretrained bond GNN model")
   argparser.add_argument('--pt_gnn_angle', type=str, default="../pretrained/gnn_angles_dsgen.pkl",help="Pretrained angle GNN model")
@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
 
   args = argparser.parse_args()
-    
+  print("Running...")
   if [args.file,args.smiles].count(None)!=1:
     print("Provide one of either file or smiles")
     argparser.print_help()
@@ -49,14 +49,14 @@ if __name__ == '__main__':
   os.environ["MMTBX_CCP4_MONOMER_LIB"] = args.mon_lib_path
   
   # Get a mol
+  
+  # from smiles
   if args.smiles is not None:
-
-    rdkit_mol = Chem.MolFromSmiles(args.smiles)
-    if args.smiles_add_H:
-      rdkit_mol = Chem.AddHs(rdkit_mol)
-    rdkit_mol, _ = mol3d(rdkit_mol)
+    rdkit_mol = mol_from_smiles(args.smiles,removeHs=False,embed3d=True,addHs=args.smiles_add_H)
     mol_input = MolInputRDKIT(rdkit_mol,comp_id=args.comp_id)
     mol = Mol(mol_input)
+    
+  # from file
   elif args.file is not None:
     file = Path(args.file)
     use_cctbx = False

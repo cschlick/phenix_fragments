@@ -7,74 +7,52 @@ from contextlib import redirect_stderr
 from rdkit import Chem
 import copy
 
+def convert_model_to_rdkit(cctbx_model):
+  """
+  Convert a cctbx model molecule object to an
+  rdkit molecule object
 
+  TODO: Bond type is always unspecified
+  """
+  assert cctbx_model.restraints_manager is not None, "Restraints manager must be set"
 
-
-def mol3d(mol):
-  #assert len(mol.GetConformers())==0, "mol already has conformer"
-  param = rdDistGeom.ETKDGv2()
-  conf_id = rdDistGeom.EmbedMolecule(mol,clearConfs=False)
-  return mol, conf_id
-
-def mol2d(mol,print_indices=False,rmH=True,size=600):
-  IPythonConsole.molSize = size,size
-  mol_copy = copy.deepcopy(mol)
-  if rmH:
-    mol_copy, idx_dict = remove_H(mol_copy)
-  ret = Chem.rdDepictor.Compute2DCoords(mol_copy)
-  
-  if print_indices:
-    for atom in mol_copy.GetAtoms():
-      atom.SetProp("atomNote", str(atom.GetIdx()))
-  return mol_copy
-
-
-
-def remove_H(rdmol):
-
-  atoms = rdmol.GetAtoms()
   mol = Chem.Mol()
   rwmol = Chem.RWMol(mol)
+  conformer = Chem.Conformer(cctbx_model.get_number_of_atoms())
 
-  idx_map = {} # new_idx:old_idx
-  for i,atom in enumerate(rdmol.GetAtoms()):
-    old_idx = atom.GetIdx()
-    atomic_number = atom.GetAtomicNum()
-    if atomic_number !=1:
-      to_delete = False
-    else:
-      to_delete = True
-      nbrs = atom.GetNeighbors()
-      if len(nbrs)!=1:
-        to_delete = False
+  for i,atom in enumerate(cctbx_model.get_atoms()):
+      element = atom.element.strip().upper()
+      if element =="D":
+        element = "H"
       else:
-        nbr = nbrs[0]
-        if nbr.GetSymbol() != "C":
-          to_delete = False
-    if not to_delete:
-      new_idx = rwmol.AddAtom(Chem.Atom(atomic_number))
-      idx_map[new_idx]=old_idx
-  idx_map_rev = {value:key for key,value in idx_map.items()}
-  for i,bond in enumerate(rdmol.GetBonds()):
-    start,end = bond.GetBeginAtom(), bond.GetEndAtom()
-    start_idx, end_idx = start.GetIdx(), end.GetIdx()
-    if start_idx in idx_map.values() and end_idx in idx_map.values():
+        element = element
+      atomic_number = Chem.GetPeriodicTable().GetAtomicNumber(element)
+      rdatom = Chem.Atom(atomic_number)
+      rdatom.SetFormalCharge(atom.charge_as_int())
+      rdatom_idx = rwmol.AddAtom(rdatom)
 
-      new_start = idx_map_rev[start_idx]
-      new_end = idx_map_rev[end_idx]
-      bond_idx = rwmol.AddBond(new_start,new_end,bond.GetBondType())
+      conformer.SetAtomPosition(rdatom_idx,atom.xyz)
 
+
+  rm = cctbx_model.restraints_manager
+  grm = rm.geometry
+  bonds_simple, bonds_asu = grm.get_all_bond_proxies()
+  bond_proxies = bonds_simple.get_proxies_with_origin_id()
+  for bond_proxy in bond_proxies:
+    begin, end = bond_proxy.i_seqs
+    order = Chem.rdchem.BondType.UNSPECIFIED
+    rwmol.AddBond(int(begin),int(end),order)
+
+  rwmol.AddConformer(conformer)
   mol = rwmol.GetMol()
-  return mol, idx_map
+  return mol
 
-
-
-
-def elbow_to_rdkit(elbow_mol):
+def convert_elbow_to_rdkit(elbow_mol):
   """
-  A simple conversion using atoms and bonds. 
-  Presumably a lot of info is lost that could also
-  be transfered.
+  Convert elbow molecule object to an
+  rdkit molecule object
+
+  TODO: Charge
   """
 
   # elbow bond order to rdkit bond orders
@@ -91,7 +69,7 @@ def elbow_to_rdkit(elbow_mol):
 
   mol = Chem.Mol()
   rwmol = Chem.RWMol(mol)
-  conformer = Chem.Conformer(len(atoms)) 
+  conformer = Chem.Conformer(len(atoms))
 
   for i,atom in enumerate(atoms):
     xyz = atom.xyz
@@ -110,17 +88,64 @@ def elbow_to_rdkit(elbow_mol):
   return mol
 
 
-def cctbx_model_to_rdkit(model,iselection=None):
-  if iselection is not None:
-    from cctbx.array_family import flex
-    isel = flex.size_t(iselection)
-    sel_model = model.select(isel)
-  else:
-    sel_model = model
-  # probably should do this through the GRM, but this
-  # works
-  m = Chem.MolFromPDBBlock(sel_model.model_as_pdb())
-  return m
+
+def mol_to_3d(mol):
+  """
+  Convert and rdkit mol to 3D coordinates
+  """
+  assert len(mol.GetConformers())==0, "mol already has conformer"
+  param = rdDistGeom.ETKDGv3()
+  conf_id = rdDistGeom.EmbedMolecule(mol,clearConfs=True)
+  return mol
+
+def mol_to_2d(mol):
+  """
+  Convert and rdkit mol to 2D coordinates
+  """
+  mol = Chem.Mol(mol) # copy to preserve original coords
+  ret = Chem.rdDepictor.Compute2DCoords(mol)
+  return mol
+
+def mol_from_smiles(smiles,embed3d=False,addHs=True,removeHs=False):
+  """
+  Convert a smiles string to rdkit mol
+  """
+  ps = Chem.SmilesParserParams()
+  ps.removeHs=removeHs
+  rdmol = Chem.MolFromSmiles(smiles,ps)
+
+  if addHs:
+    rdmol = Chem.AddHs(rdmol)
+
+  if embed3d:
+    rdmol = mol_to_3d(rdmol)
+
+
+  if removeHs:
+    rdmol = Chem.RemoveHs(rdmol)
+
+  Chem.SetHybridization(rdmol)
+  rdmol.UpdatePropertyCache()
+  return rdmol
+
+def match_mol_indices(mol_list):
+  """
+  Match atom indices of molecules.
+
+  Args:
+      mol_list (list): a list of rdkit mols
+
+  Returns:
+      match_list: (list): a list of tuples
+                          Each entry is a match beween in mols
+                          Each value is the atom index for each mol
+  """
+  mol_list = [Chem.Mol(mol) for mol in mol_list]
+  mcs_SMARTS = rdFMCS.FindMCS(mol_list)
+  smarts_mol = Chem.MolFromSmarts(mcs_SMARTS.smartsString)
+  match_list = [x.GetSubstructMatch(smarts_mol) for x in mol_list]
+  return list(zip(*match_list))
+
 
 
 
@@ -179,25 +204,7 @@ def enumerate_torsions(mol):
 
 
 
-def mol_from_smiles(smiles,embed3d=False,addHs=True,removeHs=False):
-  ps = Chem.SmilesParserParams()
-  ps.removeHs=False
-  rdmol = Chem.MolFromSmiles(smiles,ps)
-  
-  if addHs or embed3d:
-    rdmol = Chem.AddHs(rdmol)
-  
-  if embed3d:
-    # generate 3d coords using RDkit 
-    from rdkit.Chem import AllChem
-    _ = AllChem = AllChem.EmbedMolecule(rdmol,randomSeed=0xf00d)
 
-  if removeHs:
-    rdmol = Chem.RemoveHs(rdmol)
-  
-  Chem.SetHybridization(rdmol)
-  rdmol.UpdatePropertyCache()
-  return rdmol
 
 
 
@@ -211,8 +218,7 @@ def validate_rdkit_mol(rdkit_mol,roundtrip=False,return_err=False,debug=False):
     2. Chem.SanitizeMol() succeeds but returns non-standard value
     3. Any text is sent to stderr
   """
-  #import rdkit
-  #rdkit.rdBase.LogToPythonStderr()
+
   with redirect_stderr(StringIO()) as err:
     try:
       # sanitize
