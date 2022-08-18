@@ -13,7 +13,6 @@ dependencies:
   - tqdm
   - cctbx-base
   - rdkit
-  - numpy>=1.20
   - pip:
     - pdbecif
     - torchani
