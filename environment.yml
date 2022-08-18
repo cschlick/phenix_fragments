@@ -11,12 +11,16 @@ dependencies:
   - torchmetrics
   - networkx
   - tqdm
+  - jupyterlab
+  - ipywidgets
   - cctbx-base
   - rdkit
   - pynndescent
   - umap-learn
   - scikit-learn
+  - seaborn
   - numpy>=1.20
   - pip:
     - pdbecif
     - torchani
+
