@@ -1,4 +1,4 @@
-name: frag10
+name: frag
 channels:
   - pytorch
   - dglteam
