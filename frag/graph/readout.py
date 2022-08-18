@@ -1,24 +1,26 @@
 import torch
+import torch.nn as nn
 import dgl
-
-
 
 class SimpleMLP(torch.nn.Module):
   """
   Simple MLP model meant for chemical feature vectors
   """
-  def __init__(self,in_feats,hid_feats,out_feats,n_hid_layers=3,activation=torch.nn.ReLU):
+  def __init__(self,in_feats,hid_feats,out_feats,n_hid_layers=3,activation=torch.nn.ReLU,dropout=0.0):
     super(SimpleMLP, self).__init__()
     self.layers = []
 
     # input
     f_in = torch.nn.Sequential(
+            
             torch.nn.Linear(in_feats, hid_feats), activation())
     self.layers.append(f_in)
     
     # hidden layers
     for i in range(n_hid_layers):
-      layer = torch.nn.Sequential(torch.nn.Linear(hid_feats,hid_feats),activation())
+      layer = torch.nn.Sequential(torch.nn.Dropout(dropout),
+                                  torch.nn.Linear(hid_feats,hid_feats),
+                                  activation())
       self.layers.append(layer)
 
     #output
@@ -30,6 +32,31 @@ class SimpleMLP(torch.nn.Module):
     
   def forward(self,x):
     return self.f(x)
+
+class MLPPredictor(nn.Module):
+    """
+    Final layer for regression
+    """
+    def __init__(self, in_feats, hidden_feats, n_tasks, dropout=0.,fragment_name="fragment",label_name="label"):
+        super(MLPPredictor, self).__init__()
+        self.fragment_name="fragment"
+        self.label_name = label_name
+        self.predict = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Linear(in_feats, hidden_feats),
+            nn.ReLU(),
+            #nn.BatchNorm1d(hidden_feats),
+            nn.Linear(hidden_feats, n_tasks)
+        )
+
+    def forward(self, g):
+
+    
+      # predicton
+      g.apply_nodes(lambda nodes: {self.label_name+"_pred":self.predict(nodes.data["h"])},ntype=self.fragment_name)
+      return g
+
+
 
   
   
@@ -63,8 +90,7 @@ class ReadoutSimple(torch.nn.Module):
 
     assert pool_func in [torch.sum,torch.mean]
     
-    self.predictor = SimpleMLP(in_feats,hid_feats,out_feats,n_hid_layers=n_hid_layers)
-    self.error = SimpleMLP(in_feats,hid_feats,out_feats,n_hid_layers=n_hid_layers)
+    #self.predictor = SimpleMLP(in_feats,hid_feats,out_feats,n_hid_layers=n_hid_layers)
     
   def forward(self,g):
     
@@ -83,7 +109,7 @@ class ReadoutSimple(torch.nn.Module):
     
     
     # predicton
-    g.apply_nodes(lambda nodes: {self.label_name+"_pred":self.predictor(nodes.data["h"])},ntype=self.fragment_name)
+    #g.apply_nodes(lambda nodes: {self.label_name+"_pred":self.predictor(nodes.data["h"])},ntype=self.fragment_name)
 
     return g
   
@@ -120,7 +146,7 @@ class ReadoutSimpleLinear(ReadoutSimple):
     
     
     # predicton
-    g.apply_nodes(lambda nodes: {self.label_name+"_pred":self.predictor(nodes.data["h"])},ntype=self.fragment_name)
+    #g.apply_nodes(lambda nodes: {self.label_name+"_pred":self.predictor(nodes.data["h"])},ntype=self.fragment_name)
     return g
 
 
@@ -130,9 +156,9 @@ class ReadoutJanossyLinear(torch.nn.Module):
   def __init__(self,
                in_feats,
                hid_feats,
-               out_feats,
                n_hid_layers=3,
                fragment_size=2,
+               dropout=0.0,
                fragment_name="fragment",
                atom_node_name = "atom",
                label_name="label",
@@ -146,8 +172,8 @@ class ReadoutJanossyLinear(torch.nn.Module):
 
     assert pool_func in [torch.sum,torch.mean]
     
-    self.janossy = SimpleMLP(in_feats,hid_feats,hid_feats,n_hid_layers=n_hid_layers)
-    self.predictor = torch.nn.Linear(in_features=hid_feats, out_features=out_feats, bias=True)
+    self.janossy = SimpleMLP(in_feats,hid_feats,hid_feats,n_hid_layers=n_hid_layers,dropout=dropout)
+    #self.predictor = torch.nn.Linear(in_features=hid_feats, out_features=out_feats, bias=True)
   
   def forward(self,g):
     
@@ -171,5 +197,5 @@ class ReadoutJanossyLinear(torch.nn.Module):
     
     
     # predicton
-    g.apply_nodes(lambda nodes: {self.label_name+"_pred":self.predictor(nodes.data["h"])},ntype=self.fragment_name)
+    #g.apply_nodes(lambda nodes: {self.label_name+"_pred":self.predictor(nodes.data["h"])},ntype=self.fragment_name)
     return g

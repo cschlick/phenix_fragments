@@ -52,21 +52,34 @@ class MolInputGeo(MolInput):
       assert isinstance(comp_list,str), "Error parsing comp_id"
       comp_id = comp_list
     self.molecule_id = comp_id
-    atom_cif_dict = cif_dict["comp_"+comp_id]["_chem_comp_atom"]
-    self.atom_input = AtomInputGeo(atom_cif_dict)
+    self.atom_input = AtomInputGeo(self.atom_cif_dict)
     self.atoms = AtomSelection(self.atom_input)
-    if "_chem_comp_bond" in cif_dict["comp_"+comp_id]:
-      bond_cif_dict = cif_dict["comp_"+comp_id]["_chem_comp_bond"]
-      self.bond_input = BondInputGeo(self.atom_input,bond_cif_dict)
+    try:
+      self.bond_input = BondInputGeo(self.atom_input,self.bond_cif_dict)
       self.bonds = BondSelection(self.bond_input)
-    if "_chem_comp_angle" in cif_dict["comp_"+comp_id]:
-      angle_cif_dict = cif_dict["comp_"+comp_id]["_chem_comp_angle"]
-      self.angle_input = AngleInputGeo(self.atom_input,angle_cif_dict)
+    except:
+      pass
+    try:
+      self.angle_input = AngleInputGeo(self.atom_input,self.angle_cif_dict)
       self.angles = AngleSelection(self.angle_input)
+    except:
+      pass
 
 
     
     super().__init__()
+    
+  @property
+  def atom_cif_dict(self):
+    return self.cif_dict["comp_"+self.molecule_id]["_chem_comp_atom"]
+    
+  @property
+  def bond_cif_dict(self):
+    return self.cif_dict["comp_"+self.molecule_id]["_chem_comp_bond"]
+    
+  @property
+  def angle_cif_dict(self):
+    return self.cif_dict["comp_"+self.molecule_id]["_chem_comp_angle"]
     
   @property
   def source_description(self):

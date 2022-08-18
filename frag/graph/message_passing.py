@@ -1,11 +1,18 @@
 import torch
-import torch.nn.functional as F
+import dgl
+import numpy as np
+
+
+import torch
 import dgl
 import numpy as np
 
 
 class MessagePassingBonded(torch.nn.Module):
-
+    
+    @staticmethod
+    def normalize(inputs,axis=0):
+      return (inputs-inputs.mean(axis=axis)[None,:])/inputs.std(axis=axis)[None,:]
 
     
     def __init__(
@@ -16,6 +23,9 @@ class MessagePassingBonded(torch.nn.Module):
         atom_node_name = "atom",
         fragment_name = "fragment",
         model_kwargs={},
+        dropout=0.0,
+        norm=None,
+        sage_activation=torch.relu
     ):
         super(MessagePassingBonded, self).__init__()
         
@@ -33,7 +43,13 @@ class MessagePassingBonded(torch.nn.Module):
         )
         layers = []
         for i in range(nlayers):
-          layers.append(dgl.nn.pytorch.conv.sageconv.SAGEConv(hidden_units,hidden_units,"mean",bias=True,activation=F.relu))
+          layers.append(dgl.nn.pytorch.conv.SAGEConv(hidden_units,
+                                                     hidden_units,
+                                                     "mean",
+                                                     bias=True,
+                                                     feat_drop=dropout,
+                                                     activation=sage_activation,
+                                                     norm=norm))
           
         self.mp = dgl.nn.Sequential(*layers)
 

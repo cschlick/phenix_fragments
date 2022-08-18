@@ -1,6 +1,8 @@
 # custom
 data/
 tmp/
+notebooks/
+scripts/*.cif
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
