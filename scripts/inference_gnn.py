@@ -94,7 +94,7 @@ if __name__ == '__main__':
   
   # gnn for bonds
   label_name = "distance"
-  file_pkl = args.pt_gnn_bond
+  file_pkl = args.pt_gnn_bond_file
   ds_gen = MolGraphDataSetGenerator.from_file_pickle(file_pkl)
   ds_gen.fragmenter.exclude_elements = [] # TODO: should not be necessary..
   ds = ds_gen(mol,disable_progress=True,skip_failures=False)
@@ -111,7 +111,7 @@ if __name__ == '__main__':
   
   # gnn for angles
   label_name = "angle_value"
-  file_pkl = args.pt_gnn_angle
+  file_pkl = args.pt_gnn_angle_file
   ds_gen = MolGraphDataSetGenerator.from_file_pickle(file_pkl)
   ds = ds_gen(mol,disable_progress=True,skip_failures=False)
   model = ds_gen.pretrained_models["predictor"]
