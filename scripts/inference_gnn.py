@@ -88,6 +88,7 @@ if __name__ == '__main__':
   label_name = "distance"
   file_pkl = args.pt_gnn_bond
   ds_gen = MolGraphDataSetGenerator.from_file_pickle(file_pkl)
+  ds_gen.fragmenter.exclude_elements = [] # TODO: This should not be necessary
   ds = ds_gen(mol,disable_progress=True,skip_failures=False)
   model = ds_gen.pretrained_models["predictor"]
   pred_graph = model(ds.fragment_graph)
