@@ -51,6 +51,8 @@ class MolInputGeo(MolInput):
     else:
       assert isinstance(comp_list,str), "Error parsing comp_id"
       comp_id = comp_list
+    if comp_id in ["."]:
+      comp_id = ""
     self.molecule_id = comp_id
     self.atom_input = AtomInputGeo(self.atom_cif_dict)
     self.atoms = AtomSelection(self.atom_input)
