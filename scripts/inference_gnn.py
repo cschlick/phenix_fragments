@@ -33,7 +33,8 @@ if __name__ == '__main__':
   argparser.add_argument('--smiles', type=str, help="Smiles string.")
   argparser.add_argument('--smiles_add_H', type=bool,default=False, help="Add hydrogens to smiles input")
   argparser.add_argument('--comp_id', type=str, default="", help="Component id for input which does not contain it (ie, smiles)")
-  argparser.add_argument('--pt_directory', type=str, default="pretrained",help="Directory for pretrained models. default is 'pretrained' from in the source directory")
+  argparser.add_argument('--pt_directory', type=str, 
+default="/net/cci-filer3/home/cschlick/software/phenix/modules/phenix_fragments/pretrained",help="Directory for pretrained models.")
   argparser.add_argument('--pt_gnn_bond_file', type=str, default="gnn_bonds_dsgen_allatom_geostd_cod.pkl",help="Pretrained bond GNN model. File relative to pt_directory.")
   argparser.add_argument('--pt_gnn_angle_file', type=str, default="gnn_angles_dsgen_allatom_geostd_cod.pkl",help="Pretrained angle GNN model. File relative to pt_directory.")
   argparser.add_argument('--out_file', type=str, default="",help="Path to write restraints-like file.")
@@ -42,8 +43,6 @@ if __name__ == '__main__':
   args = argparser.parse_args()
   
   # collect pretrained
-  if args.pt_directory == "pretrained":
-    args.pt_directory = Path(frag.__file__).parent / "pretrained"
   args.pt_gnn_bond_file = Path(args.pt_directory,args.pt_gnn_bond_file)
   args.pt_gnn_angle_file = Path(args.pt_directory,args.pt_gnn_angle_file)
   
