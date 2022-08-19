@@ -3,30 +3,26 @@ An experimental toolbox for working with molecular fragments and generating chem
 
 
 # Installation
-Install dependencies
+Clone the repo 
 ```bash
 git clone git@github.com:cschlick/phenix_fragments.git
 cd phenix_fragments
-conda env create --file=environment.yml
 ```
-
-Installing dependencies with conda can be slow, perhaps try with mamba:
-```
-conda install -c conda-forge mamba
-mamba env create --file=environment.yml
-```
-
-The above steps will create an environment names "frag". To remove the environment:
+Install dependencies using conda via the mamba. To install mamba:
 ```bash
-conda env remove -n frag
+conda install -c conda-forge mamba
+
+```
+If a fresh environment is desired:
+```bash
+mamba env create -n frag --file=environment.yml
+```
+Or, to add dependencies to an active environment:
+```bash
+mamba env update --file=environment.yml
 ```
 
 To install this package:
-```bash
-pip install .
-```
-
-To reinstall just this package after making changes:
 ```bash
 pip install . --force-reinstall
 ```
