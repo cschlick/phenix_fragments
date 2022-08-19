@@ -33,12 +33,20 @@ if __name__ == '__main__':
   argparser.add_argument('--smiles', type=str, help="Smiles string.")
   argparser.add_argument('--smiles_add_H', type=bool,default=False, help="Add hydrogens to smiles input")
   argparser.add_argument('--comp_id', type=str, default="", help="Component id for input which does not contain it (ie, smiles)")
-  argparser.add_argument('--pt_gnn_bond', type=str, default="../pretrained/gnn_bonds_dsgen_allatom_geostd_cod.pkl",help="Pretrained bond GNN model")
-  argparser.add_argument('--pt_gnn_angle', type=str, default="../pretrained/gnn_angles_dsgen_allatom_geostd_cod.pkl",help="Pretrained angle GNN model")
+  argparser.add_argument('--pt_directory', type=str, default="pretrained",help="Directory for pretrained models. default is 'pretrained' from in the source directory")
+  argparser.add_argument('--pt_gnn_bond_file', type=str, default="gnn_bonds_dsgen_allatom_geostd_cod.pkl",help="Pretrained bond GNN model. File relative to pt_directory.")
+  argparser.add_argument('--pt_gnn_angle_file', type=str, default="gnn_angles_dsgen_allatom_geostd_cod.pkl",help="Pretrained angle GNN model. File relative to pt_directory.")
   argparser.add_argument('--out_file', type=str, default="",help="Path to write restraints-like file.")
 
 
   args = argparser.parse_args()
+  
+  # collect pretrained
+  if args.pt_directory == "pretrained":
+    args.pt_directory = Path(frag.__file__).parent / "pretrained"
+  args.pt_gnn_bond_file = Path(args.pt_directory,args.pt_gnn_bond_file)
+  args.pt_gnn_angle_file = Path(args.pt_directory,args.pt_gnn_angle_file)
+  
   print("Running...")
   if [args.file,args.smiles].count(None)!=1:
     print("Provide one of either file or smiles")
@@ -88,7 +96,7 @@ if __name__ == '__main__':
   label_name = "distance"
   file_pkl = args.pt_gnn_bond
   ds_gen = MolGraphDataSetGenerator.from_file_pickle(file_pkl)
-  ds_gen.fragmenter.exclude_elements = [] # TODO: This should not be necessary
+  ds_gen.fragmenter.exclude_elements = [] # TODO: should not be necessary..
   ds = ds_gen(mol,disable_progress=True,skip_failures=False)
   model = ds_gen.pretrained_models["predictor"]
   pred_graph = model(ds.fragment_graph)
