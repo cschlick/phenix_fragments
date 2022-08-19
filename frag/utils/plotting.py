@@ -3,7 +3,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import seaborn as sns
-def plot_geom_eval(a,b,mode="bond",s=0.01,xlim=None,ylim=None,xlabel="Reference",ylabel="Predicted",fontsize=14,stat="count",note=""):
+def plot_geom_eval(a,b,mode="bond",s=0.01,xlim=None,scatter_lim=None,ylim=None,xlabel="Reference",ylabel="Predicted",fontsize=14,stat="count",note=""):
   
   if a.ndim==2:
     a = a[:,0]
@@ -19,12 +19,17 @@ def plot_geom_eval(a,b,mode="bond",s=0.01,xlim=None,ylim=None,xlabel="Reference"
   ax.scatter(a,b,s=s)
   #sns.kdeplot(a,b,fill=True)
   if mode == "bond":
-    ax.set_xlim(1,1.8)
-    ax.set_ylim(1,1.8)
+    if scatter_lim is None:
+      scatter_lim = (1,1.8)
+    ax.set_xlim(*scatter_lim)
+    ax.set_ylim(*scatter_lim)
     units = "(Å)"
   elif mode == "angle":
-    ax.set_xlim(50,140)
-    ax.set_ylim(50,140)
+    if scatter_lim is None:
+      scatter_lim = (50,140)
+    
+    ax.set_xlim(*scatter_lim)
+    ax.set_ylim(*scatter_lim)
     units = "(deg)"
   ax.plot([0,200],[0,200],color="black")
   ax.set_xlabel(xlabel+" "+units,fontsize=fontsize)
@@ -55,4 +60,5 @@ def plot_geom_eval(a,b,mode="bond",s=0.01,xlim=None,ylim=None,xlabel="Reference"
   plt.yticks(fontsize = fontsize)
   if len(note)>0:
     fig.suptitle(note, fontsize=fontsize)
+
 
