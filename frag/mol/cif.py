@@ -136,8 +136,11 @@ def guess_cif_format(cif_dict):
       comp_id = comp_ids[0]
     else:
       comp_id = comp_ids
+    if comp_id in ["."]:
+      comp_id = ""
     if "comp_"+comp_id in cif_dict:
       return "geocif"
+    
     else:
       assert False, "Unable to guess cif format"
   else:
