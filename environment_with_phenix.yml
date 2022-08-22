@@ -1,0 +1,68 @@
+channels:
+- conda-forge
+- phenix-project
+- pytorch
+- dglteam
+dependencies:
+- absl-py
+- amber_phenix
+- biopython
+- bokeh
+- colorlog
+- dials-data
+- docutils
+- flask
+- future
+- h5py
+- hdf5
+- hdf5plugin
+- ipython
+- libsvm
+- libsvm-official
+- libtiff
+- matplotlib-base
+- mrcfile
+- msgpack-c
+- msgpack-python
+- networkx
+- numpy =1.21
+- numpydoc
+- onedep_api
+- orderedset
+- pillow
+- pint
+- pip
+- procrunner
+- protobuf
+- psutil
+- pybind11
+- pyrtf
+- pyside2
+- pytest
+- pytest-mock
+- pytest-xdist
+- python =3.7
+- pyzmq
+- rdkit
+- reportlab
+- requests
+- restraintlib
+- scikit-learn
+- scipy
+- scons
+- send2trash
+- setuptools =59
+- six
+- sphinx
+- tabulate
+- tqdm
+- websockets
+- wxpython
+- pytorch
+- torchmetrics
+- dgl
+- pandas
+- pip:
+  - ortools
+  - pdbecif
+  - torchani
