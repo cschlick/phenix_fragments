@@ -31,7 +31,7 @@ def real_ml_function(elbow_mol, increase=0.1):
   
    # gnn for bonds
   label_name = "distance"
-  file_pkl = "/net/cci-filer3/home/cschlick/Coding/phenix_fragments/pretrained/gnn_bonds_dsgen_allatom_geostd_cod.pkl"
+  file_pkl = "../pretrained/gnn_bonds_dsgen_allatom_geostd_cod.pkl"
   ds_gen = MolGraphDataSetGenerator.from_file_pickle(file_pkl)
   ds_gen.fragmenter.exclude_elements = [] # TODO: should not be necessary..
   ds = ds_gen(mol,disable_progress=True,skip_failures=False)
@@ -55,7 +55,7 @@ def real_ml_function(elbow_mol, increase=0.1):
   
   # gnn for angles
   label_name = "angle_value"
-  file_pkl = "/net/cci-filer3/home/cschlick/Coding/phenix_fragments/pretrained/gnn_angles_dsgen_allatom_geostd_cod.pkl"
+  file_pkl = "../pretrained/gnn_angles_dsgen_allatom_geostd_cod.pkl"
   ds_gen = MolGraphDataSetGenerator.from_file_pickle(file_pkl)
   ds = ds_gen(mol,disable_progress=True,skip_failures=False)
   model = ds_gen.pretrained_models["predictor"]
