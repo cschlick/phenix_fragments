@@ -1,0 +1,13 @@
+channels:
+  - pytorch
+  - dglteam
+  - conda-forge
+  - defaults
+dependencies:
+  - pip
+  - pytorch
+  - dgl
+  - torchmetrics
+  - pip:
+    - pdbecif
+
