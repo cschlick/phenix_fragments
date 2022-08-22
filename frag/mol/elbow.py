@@ -162,10 +162,14 @@ class AngleElbow(Angle):
         i,j,k = (atomlist.atom_input.elbow_mol.index(atoms[0]),
                atomlist.atom_input.elbow_mol.index(atoms[1]),
                atomlist.atom_input.elbow_mol.index(atoms[2]))
+        if hasattr(angle,"equil"):
+          angle_ideal = angle.equil
+        else:
+          angle_ideal = None
         return cls(atomlist,
                    angle,
                    selection_int=[i,j,k],
-                   angle_ideal=angle.equil)
+                   angle_ideal=angle_ideal)
         
     def __init__(self,
                  atomlist,

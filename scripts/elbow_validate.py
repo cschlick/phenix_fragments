@@ -41,8 +41,12 @@ def real_ml_function(elbow_mol, increase=0.1):
   assert np.all(np.isclose(ref_labels,mol.bonds.distance)), "Graph labels and mol object labels not matching" 
   pred_labels = pred_graph.nodes["fragment"].data[label_name+"_pred"][...,0].detach().numpy()
   
-  # debug
-  print(pred_labels)
+  # debug print
+  
+  print("Predicted bonds:")
+  for frag,label in zip(ds.fragments,pred_labels):
+    print(frag.atom_id,label)
+ 
   # set predicted as ideal
   for pred,bond in zip(pred_labels,mol.bonds):
     bond.distance_ideal = pred
@@ -59,14 +63,20 @@ def real_ml_function(elbow_mol, increase=0.1):
   ref_labels = pred_graph.nodes["fragment"].data[label_name][...,0].detach().numpy()
   assert np.all(np.isclose(ref_labels,mol.angles.angle_value)), "Graph labels and mol object labels not matching"
   pred_labels = pred_graph.nodes["fragment"].data[label_name+"_pred"][...,0].detach().numpy()
-  
+
+  # debug print
+  print("Predicted angles:")
+  for frag,label in zip(ds.fragments,pred_labels):
+    print(frag.atom_id,label)
+
   # set predicted as ideal
   for pred,angle in zip(pred_labels,mol.angles):
     angle.angle_ideal = pred
     angle.elbow_angle.equil = round(float(pred),3)
   
-  
   elbow_mol.Optimise()
+  
+  #print(elbow_mol)
   return elbow_mol
 
 def fake_ml_function(mol, increase=0.1):
@@ -80,7 +90,7 @@ def fake_ml_function(mol, increase=0.1):
   return mol
 
 def get_elbow_molecule(code=None,
-                       mogul=False,
+                       mogul=True,
                        ):
   assert code
   mol = None
