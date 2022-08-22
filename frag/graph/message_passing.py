@@ -3,10 +3,6 @@ import dgl
 import numpy as np
 
 
-import torch
-import dgl
-import numpy as np
-
 
 class MessagePassingBonded(torch.nn.Module):
     
@@ -58,7 +54,9 @@ class MessagePassingBonded(torch.nn.Module):
         
         # get homogeneous subgraph
         edge_type = "%s_%s_%s" % (self.atom_node_name,"bonded",self.atom_node_name)
-        g_ = dgl.to_homogeneous(g.edge_type_subgraph([edge_type]))
+        homo_graph = g.edge_type_subgraph([edge_type])
+        #homo_graph._ntypes = list(set(homo_graph.ntypes)) # a hack to go from separate src,dst node types to unified node types by label
+        homo_graph = dgl.to_homogeneous(homo_graph)
 
         if x is None:
             # get node attributes
@@ -66,7 +64,7 @@ class MessagePassingBonded(torch.nn.Module):
             x = self.f_in(x)
 
         # message passing on atom graph
-        x = self.mp(g_,x)
+        x = self.mp(homo_graph,x)
 
         # put attribute back in the graph
         g.nodes[self.atom_node_name].data["h"] = x
