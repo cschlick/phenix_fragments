@@ -16,6 +16,9 @@ class RDKITFingerprint(AtomFeaturizerBase):
     if not isinstance(atom,Chem.Atom):
       assert hasattr(atom,"rdkit_atom") and isinstance(atom.rdkit_atom,Chem.Atom), "Rdkit required for this featurizer"
       atom = atom.rdkit_atom
+      
+      
+      
       HYBRIDIZATION_RDKIT = {
         Chem.rdchem.HybridizationType.SP: np.array(
             [1, 0, 0, 0, 0],
