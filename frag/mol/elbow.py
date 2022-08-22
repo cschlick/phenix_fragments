@@ -138,14 +138,14 @@ class BondElbow(Bond):
                          distance_ideal=distance_ideal)
         self.elbow_bond = elbow_bond
     
-    @property
-    def distance_ideal(self):
-      return self._distance_ideal
+#     @property
+#     def distance_ideal(self):
+#       return self._distance_ideal
     
-    @distance_ideal.setter
-    def distance_ideal(self,value):
-      self._distance_ideal = value
-      self.elbow_bond.equil = value
+#     @distance_ideal.setter
+#     def distance_ideal(self,value):
+#       self._distance_ideal = value
+#       self.elbow_bond.equil = value
 
 class BondInputElbow(BondInput):
   def __init__(self,atom_input,elbow_mol):
